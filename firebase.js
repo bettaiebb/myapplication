@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {getAuth} from "firebase/auth ";
+import {getAuth} from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyAQArjve56_YHtKi2RA1RlgcyO9XmB-C08",
   authDomain: "rescue-helmet.firebaseapp.com",
