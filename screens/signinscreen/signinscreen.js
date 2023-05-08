@@ -9,7 +9,9 @@ import {
 import React, {useState, useEffect} from 'react';
 import {Input, Button} from 'react-native-elements';
 import {auth} from '../../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import {createStackNavigator} from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 const imglink = {
   uri: 'https://img.freepik.com/free-photo/sexy-brunette-woman-leather-jacket-putting-helmet-sitting-retro-style-motorcycle-beautiful-sunny-day_342744-694.jpg?w=740&t=st=1682465518~exp=1682466118~hmac=7a51829860bd744e3a3e1a0abfde9ab3e9c6abcce1b876d8cd0fcabc3b834181',
 };
@@ -22,54 +24,44 @@ export const Signinscreen = () => {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
-
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
-
+  const navigation = useNavigation();
+  
+  
   useEffect(() => {
-    // const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    const subscriber = auth.onAuthStateChanged(onAuthStateChanged)
-    return subscriber; // unsubscribe on unmount
+  
+    const unsubscribe = auth.onAuthStateChanged((authUser) =>{
+      if (authUser){
+        navigation.navigate("ProfileSelectionScreen");
+      }
+    })
+      return unsubscribe;
   }, []);
 
-  const signin = () => {
+ const signin = async () => {
+  try{
     if (email === '' || password === '') {
       Alert.alert(
         'invalide détails',
         'Veuillez remplir tous les champs',
-        [
-          {
-            text: 'Annuler',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
-        ],
-        {cancelable: false},
-      );
-    } else {
-      
-      auth()
-        .signInWithEmailAndPassword(email, password)
-        .then(() => {
-          console.log('Utilisateur connecté !');
-        })
-        .catch(error => {
-          if (error.code === 'auth/wrong-password') {
-            console.log('Mot de passe incorrect!');
-          }
-
-          if (error.code === 'auth/user-not-found') {
-            console.log('Aucun utilisateur trouvé avec cet email!');
-          }
-
-          console.error(error);
-        });
+        [ {
+          text: 'Annuler',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ],
+      {cancelable: false},
+    );
+  } else {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      console.log("user credential", userCredential);
+      const user = userCredential.user;
+      console.log("user details", user);
     }
+  }catch (error) {
+    console.log(error.message);
+    Alert.alert('Error', error.message);
+  }
   };
 
   return (
@@ -94,7 +86,7 @@ export const Signinscreen = () => {
           placeholder="Entrer votre email"
           value={email}
           onChangeText={text => setEmail(text)}
-          // secureTextEntry={true}
+          secureTextEntry={true}
           containerStyle={{height: 50, width: 378}}
           inputStyle={{fontSize: 22}}
           inputContainerStyle={{backgroundColor: '#DFDDDD', borderRadius: 50}}
@@ -105,7 +97,7 @@ export const Signinscreen = () => {
         <Input
           placeholder="taper votre mot de passe"
           value={password}
-          // secureTextEntry={true}
+           secureTextEntry={true}
           onChangeText={text => setPassword(text)}
           containerStyle={{height: 50, width: 378}}
           inputStyle={{fontSize: 22}}
@@ -152,3 +144,4 @@ const styles = StyleSheet.create({
     height: height,
   },
 });
+

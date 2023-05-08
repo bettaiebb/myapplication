@@ -1,23 +1,47 @@
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet, Dimensions } from 'react-native';
 import { Input, Button } from 'react-native-elements';
+import {auth, db} from '../../firebase';
+import {doc, setDoc} from "firebase/firestore"
 const imglink ={uri:"https://img.freepik.com/free-photo/person-working-building-construction_23-2149184942.jpg?w=740&t=st=1682465893~exp=1682466493~hmac=4e0a8e26853aa8ec088bb823fc7d236211268101842ce124988981c091504c08"}
 const { width, height } = Dimensions.get('window');
-
 const Spacer = ({ height }) => {
   return <View style={{ height: height }} />;
 };
-
 export const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
+ const signup= () => {
+  if (email === '' || password === '' || confirmPassword==='' || username==='') {
+    Alert.alert(
+      'invalide détails',
+      'Veuillez remplir tous les champs',
+      [
+        {
+          text: 'Annuler',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ],
+      {cancelable: false},
+    );
+  }
+  createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
+    console.log("user credential",userCredential);
+    const user = userCredential._tokenResponse.email;
+    const myUserUid = auth.currentUser.uid;
 
-  const handleSignup = () => {
-    // Do something with the user's input here
-  };
-
+    setDoc(doc(db,"users", '${myUserUid}'),{
+      email:user
+    } 
+    )
+  }
+  )
+ 
   return (
     <ImageBackground source={imglink} resizeMode= "cover" 
     style={styles.backgroundImage}>
@@ -71,7 +95,7 @@ export const SignupScreen = () => {
      
       <Button
         title="S'inscrire"
-        onPress={handleSignup}
+        onPress={signup}
         buttonStyle={{ backgroundColor: '#0408a3', height: 50, width: 325 , borderRadius: 11 }}
         titleStyle={{ fontWeight: 'semiBold', fontSize: 20 }}
 
@@ -111,5 +135,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
+}
 

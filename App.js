@@ -11,17 +11,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Signinscreen} from './screens/signinscreen/signinscreen';
 import {ProfileSelectionScreen} from './screens/ProfileSelectionScreen/ProfileSelectionScreen';
-import auth from '@react-native-firebase/auth';
-import {Text} from 'react-native-elements';
+
 
 const Stack = createStackNavigator();
-const Home = () => {
-  return (
-    <View>
-      <Text>hello</Text>
-    </View>
-  );
-};
+
 function App() {
   return (
     <NavigationContainer>
